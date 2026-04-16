@@ -1,0 +1,42 @@
+name: Discord Notifications
+
+on:
+  workflow_run:
+    workflows: ["Deployment pipeline"]
+    types:
+      - completed
+
+jobs:
+  send_discord_notification:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion != 'skipped' && github.event.workflow_run.event == 'push'
+    
+    steps:
+      - name: Send success notification
+        if: github.event.workflow_run.conclusion == 'success'
+        uses: tsickert/discord-webhook@v5.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          content: |
+            ✅ **Deployment Successful!**
+            A new version has been deployed to production.
+            **Repository:** ${{ github.repository }}
+            **Branch:** ${{ github.event.workflow_run.head_branch }}
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
+            **Author:** ${{ github.event.workflow_run.actor.login }}
+            **Workflow:** ${{ github.event.workflow_run.name }}
+
+      - name: Send failure notification
+        if: github.event.workflow_run.conclusion == 'failure'
+        uses: tsickert/discord-webhook@v5.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          content: |
+            ❌ **Build Failed!**
+            The build pipeline failed.
+            **Repository:** ${{ github.repository }}
+            **Branch:** ${{ github.event.workflow_run.head_branch }}
+            **Commit:** ${{ github.event.workflow_run.head_sha }}
+            **Author:** ${{ github.event.workflow_run.actor.login }}
+            **Action URL:** https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}
+            Please check the logs for details.
