@@ -2,17 +2,22 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 
 const PokemonList = ({ pokemonList }) => {
+  if (!pokemonList || pokemonList.length === 0) {
+    return <div>Loading Pokemon...</div>
+  }
+  
   return (
-    <div className="list-container">
-      {pokemonList.map(({ id, name }) => (
-        <Link key={id} to={`/pokemon/${name}`} className="list-item" style={{ backgroundImage: `url(${`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`})` }}>
-          <div
-            className="list-item-name"
-          >
-            {name}
-          </div>
-        </Link>
-      ))}
+    <div>
+      <h1>Pokemon List</h1>
+      <ul>
+        {pokemonList.map(pokemon => (
+          <li key={pokemon.id}>
+            <Link to={`/pokemon/${pokemon.name}`}>
+              {pokemon.name}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
