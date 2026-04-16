@@ -44,7 +44,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 
-          tag_release:
+  tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
