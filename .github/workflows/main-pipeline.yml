@@ -68,15 +68,7 @@ jobs:
       - name: Build application
         run: npm run build
 
-  # Deploy (only if no #skip)
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [unit_tests, e2e_tests, build]
-    if: success() && !contains(join(github.event.commits.*.message, ' '), '#skip')
-    steps:
-      - uses: actions/checkout@v4
-      - name: Trigger Render deployment
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+  
 
   # Tag Release (only if no #skip and deploy succeeded)
   tag_release:
