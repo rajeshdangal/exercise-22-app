@@ -1,0 +1,113 @@
+name: Parallel Test Runner
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+jobs:
+  # Job 1: Code Quality and Linting
+  code_quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check style with ESLint
+        run: npm run eslint
+
+  # Job 2: Unit Tests (Jest) - Runs in parallel with E2E tests
+  unit_tests:
+    runs-on: ubuntu-latest
+    needs: [code_quality]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Jest tests
+        run: npm test
+
+  # Job 3: End-to-End Tests (Playwright) - Runs in parallel with Unit tests
+  e2e_tests:
+    runs-on: ubuntu-latest
+    needs: [code_quality]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: npm run test:e2e
+        env:
+          CI: true
+
+  # Job 4: Build Application - Runs in parallel with tests
+  build:
+    runs-on: ubuntu-latest
+    needs: [code_quality]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # Job 5: Summary - Reports overall status
+  test_summary:
+    runs-on: ubuntu-latest
+    needs: [unit_tests, e2e_tests, build]
+    if: always()
+    steps:
+      - name: Check test results
+        run: |
+          echo "✅ Code Quality: ${{ needs.code_quality.result }}"
+          echo "✅ Unit Tests: ${{ needs.unit_tests.result }}"
+          echo "✅ E2E Tests: ${{ needs.e2e_tests.result }}"
+          echo "✅ Build: ${{ needs.build.result }}"
+          
+          if [[ "${{ needs.unit_tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.e2e_tests.result }}" == "failure" ]] || \
+             [[ "${{ needs.build.result }}" == "failure" ]]; then
+            echo "❌ Some tests failed!"
+            exit 1
+          else
+            echo "✅ All tests passed!"
+          fi
