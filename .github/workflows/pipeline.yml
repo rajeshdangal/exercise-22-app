@@ -40,10 +40,6 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Trigger Render deployment
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
-
   tag_release:
     needs: [simple_deployment_pipeline]
     runs-on: ubuntu-latest
