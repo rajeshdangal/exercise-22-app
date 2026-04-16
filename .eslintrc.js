@@ -1,47 +1,51 @@
 module.exports = {
-  "env": {
-    "browser": true,
-    "es6": true,
+  env: {
+    browser: true,
+    node: true,
+    es6: true,
     "jest/globals": true
   },
-  "extends": [
+  extends: [
     "eslint:recommended",
     "plugin:react/recommended"
   ],
-  "parserOptions": {
-    "ecmaFeatures": {
-      "jsx": true
+  parserOptions: {
+    ecmaFeatures: {
+      jsx: true
     },
-    "ecmaVersion": 2018,
-    "sourceType": "module"
+    ecmaVersion: 2018,
+    sourceType: "module"
   },
-  "plugins": [
-    "react", "jest"
+  plugins: [
+    "react",
+    "jest"
   ],
-  "rules": {
-    "indent": [
+  rules: {
+    indent: [
       "error",
-        2
-      ],
+      2
+    ],
     "linebreak-style": [
       "error",
       "unix"
     ],
-    "quotes": [
+    quotes: [
       "error",
       "single"
     ],
-    "semi": [
+    semi: [
       "error",
       "never"
     ],
-    "eqeqeq": "error",
+    eqeqeq: "error",
     "no-trailing-spaces": "error",
     "object-curly-spacing": [
-      "error", "always"
+      "error",
+      "always"
     ],
     "arrow-spacing": [
-      "error", { "before": true, "after": true }
+      "error",
+      { "before": true, "after": true }
     ],
     "no-console": "error",
     "react/prop-types": 0
