@@ -1,0 +1,45 @@
+name: Pull Request Pipeline
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr_checks:
+    runs-on: ubuntu-latest
+    name: PR Quality Checks
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check style with ESLint
+        run: npm run eslint
+
+      - name: Run Jest unit tests
+        run: npm test
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright e2e tests
+        run: npm run test:e2e
+
+      - name: Build application
+        run: npm run build
+
+      - name: PR Success Notification
+        if: success()
+        run: echo "✅ All PR checks passed!"
+
+      - name: PR Failure Notification
+        if: failure()
+        run: echo "❌ Some PR checks failed. Please fix before merging."
